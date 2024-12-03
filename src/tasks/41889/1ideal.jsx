@@ -25,11 +25,30 @@ export default function App() {
     const canvas = canvasRef.current;
     canvas.width = window.innerWidth * 0.9;
     canvas.height = window.innerHeight * 0.6;
+  
     const ctx = canvas.getContext("2d");
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctxRef.current = ctx;
-    saveToHistory(ctx.getImageData(0, 0, canvas.width, canvas.height));
+  
+    // Clear canvas and save the initial state to history
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const initialImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    setHistory([initialImageData]); // Set initial history
+    setHistoryIndex(0); // Set the initial index to 0
+  
+    // Handle resizing on mobile
+    const handleResize = () => {
+      canvas.width = window.innerWidth * 0.9;
+      canvas.height = window.innerHeight * 0.6;
+      ctx.putImageData(history[historyIndex], 0, 0); // Restore the current history state
+    };
+  
+    window.addEventListener("resize", handleResize);
+  
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   // Save the current canvas state to history
@@ -38,7 +57,7 @@ export default function App() {
     newHistory.push(imageData); // Add current state
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1); // Update the history index
-  };
+  };  
 
   // Start drawing on the canvas
   const startDrawing = (e) => {
@@ -75,21 +94,22 @@ export default function App() {
 
   // Stop drawing and save the canvas state
   const stopDrawing = () => {
-    if (selectedTool !== "fill") {
-      ctxRef.current.closePath();
-    }
+    if (!isDrawing) return;
+  
     setIsDrawing(false);
-    if (selectedTool !== "fill") {
-      saveToHistory(
-        ctxRef.current.getImageData(
-          0,
-          0,
-          canvasRef.current.width,
-          canvasRef.current.height
-        )
-      );
-    }
+    ctxRef.current.closePath();
+  
+    // Save the canvas state only when drawing stops
+    saveToHistory(
+      ctxRef.current.getImageData(
+        0,
+        0,
+        canvasRef.current.width,
+        canvasRef.current.height
+      )
+    );
   };
+  
 
   // Get canvas-relative coordinates from a mouse or touch event
   const getCoordinates = (e) => {
@@ -97,11 +117,16 @@ export default function App() {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
+  
+    // Handle touch and mouse events
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  
     return {
-      offsetX: (e.clientX - rect.left) * scaleX,
-      offsetY: (e.clientY - rect.top) * scaleY,
+      offsetX: (clientX - rect.left) * scaleX,
+      offsetY: (clientY - rect.top) * scaleY,
     };
-  };
+  };  
 
   // Draw shapes on the canvas (rectangle, circle, or line)
   const drawShape = (endX, endY) => {
@@ -188,10 +213,12 @@ export default function App() {
   // Undo the last action
   const handleUndo = () => {
     if (historyIndex > 0) {
-      setHistoryIndex(historyIndex - 1);
-      ctxRef.current.putImageData(history[historyIndex - 1], 0, 0);
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      ctxRef.current.putImageData(history[newIndex], 0, 0); // Restore from history
     }
   };
+  
 
   // Redo the last undone action
   const handleRedo = () => {
@@ -287,6 +314,7 @@ export default function App() {
               onTouchStart={startDrawing}
               onTouchMove={draw}
               onTouchEnd={stopDrawing}
+              onTouchCancel={stopDrawing} // Handle interrupted touch events
               className="border border-gray-300 w-full h-auto"
             />
           </div>
