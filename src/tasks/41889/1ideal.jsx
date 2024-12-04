@@ -39,11 +39,68 @@ export default function App() {
   
     // Handle resizing on mobile
     const handleResize = () => {
+      const canvas = canvasRef.current;
+      const ctx = ctxRef.current;
+    
+      // Save current canvas content to an offscreen canvas
+      const offscreenCanvas = document.createElement("canvas");
+      const offscreenCtx = offscreenCanvas.getContext("2d");
+    
+      offscreenCanvas.width = canvas.width;
+      offscreenCanvas.height = canvas.height;
+      offscreenCtx.drawImage(canvas, 0, 0); // Copy current canvas content
+    
+      // Calculate scaling factors for resizing
+      const scaleX = window.innerWidth * 0.9 / canvas.width;
+      const scaleY = window.innerHeight * 0.6 / canvas.height;
+    
+      // Resize the main canvas
       canvas.width = window.innerWidth * 0.9;
       canvas.height = window.innerHeight * 0.6;
-      ctx.putImageData(history[historyIndex], 0, 0); // Restore the current history state
+    
+      // Scale and restore the saved content to the resized canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(
+        offscreenCanvas,
+        0,
+        0,
+        offscreenCanvas.width,
+        offscreenCanvas.height,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+    
+      // Restore drawing context properties
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = brushSize;
+      ctx.strokeStyle = selectedColor;
+    
+      // Save the resized state to history
+      const resizedImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      setHistory((prev) => [...prev.slice(0, historyIndex + 1), resizedImageData]);
+      setHistoryIndex((prev) => prev + 1);
+    };
+    
+
+    const initializeCanvas = () => {
+      canvas.width = window.innerWidth * 0.9;
+      canvas.height = window.innerHeight * 0.6;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = brushSize;
+      ctx.strokeStyle = selectedColor;
+  
+      // Save initial blank canvas state
+      const initialImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      setHistory([initialImageData]);
+      setHistoryIndex(0);
     };
   
+    initializeCanvas();
+
     window.addEventListener("resize", handleResize);
   
     return () => {
