@@ -10,7 +10,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -62,8 +68,15 @@ export default function App() {
   const getBadgeStyle = () => ({
     backgroundColor: badge.bgColor,
     color: badge.textColor,
-    border: badge.showBorder ? `${badge.borderWidth}px solid ${badge.borderColor}` : "none",
-    borderRadius: badge.shape === "circle" ? "50%" : badge.shape === "square" ? "10%" : "5px",
+    border: badge.showBorder
+      ? `${badge.borderWidth}px solid ${badge.borderColor}`
+      : "none",
+    borderRadius:
+      badge.shape === "circle"
+        ? "50%"
+        : badge.shape === "square"
+        ? "10%"
+        : "5px",
     padding: "10px",
     display: "flex",
     alignItems: "center",
@@ -77,7 +90,10 @@ export default function App() {
 
   const getBadgeCode = () => `
 <div style="${Object.entries(getBadgeStyle())
-    .map(([key, value]) => `${key.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${value};`)
+    .map(
+      ([key, value]) =>
+        `${key.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${value};`
+    )
     .join(" ")}">
   ${badge.text}
 </div>`;
@@ -102,7 +118,10 @@ export default function App() {
                   <div className="space-y-4">
                     <div>
                       <Label>Shape</Label>
-                      <Select value={badge.shape} onValueChange={(value) => updateBadge("shape", value)}>
+                      <Select
+                        value={badge.shape}
+                        onValueChange={(value) => updateBadge("shape", value)}
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -129,12 +148,19 @@ export default function App() {
                         max={32}
                         step={1}
                         value={[badge.fontSize]}
-                        onValueChange={([value]) => updateBadge("fontSize", value)}
+                        onValueChange={([value]) =>
+                          updateBadge("fontSize", value)
+                        }
                       />
                     </div>
                     <div>
                       <Label>Font Style</Label>
-                      <Select value={badge.fontStyle} onValueChange={(value) => updateBadge("fontStyle", value)}>
+                      <Select
+                        value={badge.fontStyle}
+                        onValueChange={(value) =>
+                          updateBadge("fontStyle", value)
+                        }
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -149,7 +175,12 @@ export default function App() {
                     </div>
                     <div>
                       <Label>Alignment</Label>
-                      <Select value={badge.alignment} onValueChange={(value) => updateBadge("alignment", value)}>
+                      <Select
+                        value={badge.alignment}
+                        onValueChange={(value) =>
+                          updateBadge("alignment", value)
+                        }
+                      >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -175,13 +206,17 @@ export default function App() {
                       <Input
                         type="color"
                         value={badge.textColor}
-                        onChange={(e) => updateBadge("textColor", e.target.value)}
+                        onChange={(e) =>
+                          updateBadge("textColor", e.target.value)
+                        }
                       />
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch
                         checked={badge.showBorder}
-                        onCheckedChange={(checked) => updateBadge("showBorder", checked)}
+                        onCheckedChange={(checked) =>
+                          updateBadge("showBorder", checked)
+                        }
                       />
                       <Label>Show Border</Label>
                     </div>
@@ -192,7 +227,9 @@ export default function App() {
                           <Input
                             type="color"
                             value={badge.borderColor}
-                            onChange={(e) => updateBadge("borderColor", e.target.value)}
+                            onChange={(e) =>
+                              updateBadge("borderColor", e.target.value)
+                            }
                           />
                         </div>
                         <div>
@@ -202,7 +239,9 @@ export default function App() {
                             max={10}
                             step={1}
                             value={[badge.borderWidth]}
-                            onValueChange={([value]) => updateBadge("borderWidth", value)}
+                            onValueChange={([value]) =>
+                              updateBadge("borderWidth", value)
+                            }
                           />
                         </div>
                       </>
@@ -245,9 +284,13 @@ export default function App() {
                 </Button>
                 {showCode && (
                   <div>
-                    <pre className="bg-gray-100 p-2 rounded w-full text-">{getBadgeCode()}</pre>
+                    <pre className="bg-gray-100 p-2 rounded w-full text-wrap">
+                      {getBadgeCode()}
+                    </pre>
                     <Button
-                      onClick={() => navigator.clipboard.writeText(getBadgeCode())}
+                      onClick={() =>
+                        navigator.clipboard.writeText(getBadgeCode())
+                      }
                       className="mt-2"
                     >
                       Copy Code
