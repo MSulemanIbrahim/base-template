@@ -19,28 +19,51 @@ const Placeholder = ({ shape, onDrop, highlight }) => (
     onDragOver={(e) => e.preventDefault()}
   >
     <div
-      className={`w-12 h-12 opacity-30 ${
+      style={
+        shape === 'star'
+          ? {
+              clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
+              backgroundColor: highlight === 'correct' ? 'black' : 'gray',
+              width: '3rem',
+              height: '3rem',
+            }
+          : {}
+      }
+      className={`w-12 h-12 ${highlight === 'correct' ? 'opacity-100' : 'opacity-30'} ${
         shape === 'triangle'
-          ? 'border-l-[20px] border-r-[20px] border-b-[40px] border-transparent border-b-gray-500'
+          ? `border-l-[24px] border-r-[24px] border-b-[40px] border-transparent ${
+              highlight === 'correct' ? 'border-b-black' : 'border-b-gray-500'
+            }`
           : shape === 'circle'
-          ? 'rounded-full bg-gray-500'
-          : 'w-12 h-12 clip-path-star bg-gray-500'
+          ? `rounded-full ${highlight === 'correct' ? 'bg-black' : 'bg-gray-500'}`
+          : ''
       }`}
     ></div>
   </div>
 );
+
 
 // Draggable ShapeCard component
 const ShapeCard = ({ shape, draggable, onDragStart }) => (
   <Card className="w-20 h-20 border border-black bg-white cursor-pointer">
     <CardContent className="p-2 flex items-center justify-center">
       <div
+        style={
+          shape === 'star'
+            ? {
+                clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)',
+                backgroundColor: 'black',
+                width: '3rem',
+                height: '3rem',
+              }
+            : {}
+        }
         className={`w-12 h-12 ${
           shape === 'triangle'
-            ? 'border-l-[20px] border-r-[20px] border-b-[40px] border-transparent border-b-black'
+            ? 'border-l-[24px] border-r-[24px] border-b-[40px] border-transparent border-b-black'
             : shape === 'circle'
             ? 'rounded-full bg-black'
-            : 'w-12 h-12 clip-path-star bg-black'
+            : ''
         }`}
         draggable={draggable}
         onDragStart={onDragStart}

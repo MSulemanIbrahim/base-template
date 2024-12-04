@@ -196,7 +196,8 @@ const BalanceOverview = ({ transactions }) => {
 };
 
 const PieChart = ({ data, labels }) => {
-  const total = data.reduce((sum, value) => sum + value, 0);
+  const formattedData = data.filter((n) => n !== 0);
+  const total = formattedData.reduce((sum, value) => sum + value, 0);
 
   if (total === 0) {
     return (
@@ -206,28 +207,53 @@ const PieChart = ({ data, labels }) => {
     );
   }
 
-  let currentAngle = 0;
+  let cumulativeAngle = 0;
 
   return (
     <div>
       {/* SVG Pie Chart */}
-      <div className="relative w-auto h-48">
-        <svg viewBox="0 0 100 100" className="w-full h-full">
-          {data.map((value, index) => {
+      <div className="relative w-48 h-48">
+        <svg viewBox="0 0 32 32" className="w-full h-full">
+          {formattedData.map((value, index) => {
             const angle = (value / total) * 360;
+
+            // Handle single segment case
+            if (formattedData.length === 1) {
+              return (
+                <circle
+                  key={index}
+                  cx="16"
+                  cy="16"
+                  r="16"
+                  fill={`hsl(${(index * 360) / labels.length}, 70%, 50%)`}
+                />
+              );
+            }
+
             const largeArcFlag = angle > 180 ? 1 : 0;
 
-            const x1 = 50 + 50 * Math.cos((Math.PI * currentAngle) / 180);
-            const y1 = 50 - 50 * Math.sin((Math.PI * currentAngle) / 180); // SVG Y-axis is inverted
-            currentAngle += angle;
-            const x2 = 50 + 50 * Math.cos((Math.PI * currentAngle) / 180);
-            const y2 = 50 - 50 * Math.sin((Math.PI * currentAngle) / 180);
+            // Convert angles to radians and calculate coordinates
+            const startX =
+              16 + 16 * Math.cos((Math.PI * cumulativeAngle) / 180);
+            const startY =
+              16 + 16 * Math.sin((Math.PI * cumulativeAngle) / 180);
+            cumulativeAngle += angle;
+            const endX = 16 + 16 * Math.cos((Math.PI * cumulativeAngle) / 180);
+            const endY = 16 + 16 * Math.sin((Math.PI * cumulativeAngle) / 180);
+
+            // Generate the path for the current segment
+            const pathData = `
+              M 16 16
+              L ${startX} ${startY}
+              A 16 16 0 ${largeArcFlag} 1 ${endX} ${endY}
+              Z
+            `;
 
             return (
               <path
                 key={index}
-                d={`M50,50 L${x1},${y1} A50,50 0 ${largeArcFlag},1 ${x2},${y2} Z`}
-                fill={`hsl(${(index * 360) / data.length}, 70%, 50%)`}
+                d={pathData}
+                fill={`hsl(${(index * 360) / labels.length}, 70%, 50%)`}
               />
             );
           })}
@@ -242,7 +268,7 @@ const PieChart = ({ data, labels }) => {
               className="w-3 h-3 mr-1"
               style={{
                 backgroundColor: `hsl(${
-                  (index * 360) / data.length
+                  (index * 360) / labels.length
                 }, 70%, 50%)`,
               }}
             ></div>
@@ -381,7 +407,7 @@ export default function App() {
           <Button className="w-full">Toggle Charts</Button>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
                 <CardTitle>Income</CardTitle>
