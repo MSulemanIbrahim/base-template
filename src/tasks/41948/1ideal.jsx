@@ -88,15 +88,16 @@ export default function App() {
     width: badge.shape === "rectangle" ? "200px" : "auto",
   });
 
-  const getBadgeCode = () => `
-<div style="${Object.entries(getBadgeStyle())
-    .map(
-      ([key, value]) =>
-        `${key.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${value};`
-    )
-    .join(" ")}">
-  ${badge.text}
-</div>`;
+  const getBadgeCode = () => {
+    const styles = Object.entries(getBadgeStyle())
+      .map(
+        ([key, value]) =>
+          `  ${key.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${value};`
+      )
+      .join("\n");
+
+    return `<div style="\n${styles}\n">\n  ${badge.text}\n</div>`;
+  };
 
   return (
     <div className="container mx-auto p-4">
